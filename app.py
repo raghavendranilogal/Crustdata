@@ -6,14 +6,9 @@ import matplotlib.pyplot as plt
 
 st.title("Crustdata Company Intelligence Explorer")
 
-API_TOKEN = "c3dd4a518023333598b8d8323f043de7b0fdc509"
+API_TOKEN = st.secrets["CRUSTDATA_API_KEY"]
 
 url = "https://api.crustdata.com/screener/companydb/search"
-
-headers = {
-    "Authorization": f"Token {API_TOKEN}",
-    "Content-Type": "application/json"
-}
 
 payload = {
     "filters": {
@@ -24,16 +19,28 @@ payload = {
     "limit": 20
 }
 
-st.write("Calling Crustdata API...")
+headers = {
+    "Authorization": f"Token {94bebb0c37be086b15f004f5715f7507857db756}",
+    "Content-Type": "application/json"
+}
 
-response = requests.post(url, headers=headers, json=payload)
 
-if response.status_code != 200:
-    st.error(f"API Error: {response.status_code}")
-    st.stop()
+# -------- CACHE API CALL --------
 
-data = response.json()
-companies = data.get("companies", [])
+@st.cache_data(ttl=3600)
+def fetch_companies():
+
+    response = requests.post(url, headers=headers, json=payload)
+
+    if response.status_code != 200:
+        return []
+
+    data = response.json()
+
+    return data.get("companies", [])
+
+
+companies = fetch_companies()
 
 rows = []
 
@@ -55,13 +62,12 @@ for company in companies:
 
 df = pd.DataFrame(rows)
 
-# -------- Table --------
+# -------- DATA TABLE --------
 
 st.subheader("Company Dataset")
-
 st.dataframe(df)
 
-# -------- Insight 1: Top Momentum --------
+# -------- MOMENTUM CHART --------
 
 st.subheader("Top Company Momentum")
 
@@ -80,7 +86,7 @@ ax1.set_title("Companies Accelerating Fastest")
 
 st.pyplot(fig1)
 
-# -------- Insight 2: Growth vs Attention --------
+# -------- SCATTER CHART --------
 
 st.subheader("Hiring Growth vs Market Attention")
 
@@ -99,7 +105,7 @@ ax2.set_title("Company Growth vs Market Attention")
 
 st.pyplot(fig2)
 
-# -------- Insight 3: Hiring Growth Leaderboard --------
+# -------- HIRING CHART --------
 
 st.subheader("Fastest Hiring Companies")
 
