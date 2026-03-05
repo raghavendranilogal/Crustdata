@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 st.title("Crustdata Company Intelligence Explorer")
 
-API_TOKEN = st.secrets["CRUSTDATA_API_KEY"]
+API_TOKEN = st.secrets["94bebb0c37be086b15f004f5715f7507857db756"]
 
 url = "https://api.crustdata.com/screener/companydb/search"
 
